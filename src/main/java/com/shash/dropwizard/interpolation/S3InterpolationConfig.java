@@ -11,6 +11,7 @@ import lombok.Setter;
 public class S3InterpolationConfig {
     private String bucket;
     private String key;
-    private int version;
+    private String version;
     private String region;
+    private String s3VarPrefix;
 }

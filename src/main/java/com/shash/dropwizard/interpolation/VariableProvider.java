@@ -14,7 +14,6 @@ import java.util.Map;
 /**
  * @author shashank.g
  */
-@Slf4j
 public class VariableProvider implements ConfigurationSourceProvider {
 
     private final ConfigurationSourceProvider baseProvider;
@@ -45,7 +44,7 @@ public class VariableProvider implements ConfigurationSourceProvider {
         }
 
         final Map<String, String> resolvedS3Variables = s3VariableResolver.resolve(s3Config);
-        final StrSubstitutor strSubstitutor = new StrSubstitutor(new S3EnvironmentVariableLookup(resolvedS3Variables));
+        final StrSubstitutor strSubstitutor = new StrSubstitutor(new S3EnvironmentVariableLookup(resolvedS3Variables, s3Config.getS3VarPrefix()));
         final String resolvedConfigStr = strSubstitutor.replace(mapper.writeValueAsString(dropwizardConf));
 
         final String resolvedConfig = yaml.dump(yaml.loadAs(resolvedConfigStr, Map.class));

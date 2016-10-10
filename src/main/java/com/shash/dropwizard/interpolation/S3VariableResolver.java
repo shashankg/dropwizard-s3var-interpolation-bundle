@@ -57,7 +57,6 @@ public class S3VariableResolver {
      * @return resolved variables
      */
     public Map<String, String> resolve(final S3InterpolationConfig s3InterpolationConf) {
-        //
         this.client.setRegion(
                 s3InterpolationConf.getRegion() == null
                         ? Region.getRegion(Regions.valueOf(S3_DEFAULT_REGION))
@@ -68,12 +67,12 @@ public class S3VariableResolver {
         File downloadedFile = null;
         InputStream downloadStream = null;
         try {
-            downloadStream = download(s3InterpolationConf.getBucket(), s3InterpolationConf.getKey());
+            downloadStream = download(s3InterpolationConf.getBucket(), s3InterpolationConf.getKey(), s3InterpolationConf.getVersion());
             downloadedFile = save(downloadStream);
             resolvedVars = getVariableValues(downloadedFile);
         } catch (final Exception e) {
             log.error("Exception - {}", e.getMessage(), e);
-            throw new S3VarInterpolationException(e.getMessage());
+            throw new S3VarInterpolationException("Exception occurred", e);
         } finally {
             if (downloadedFile != null) {
                 downloadedFile.delete();
@@ -94,7 +93,7 @@ public class S3VariableResolver {
             return mapper.convertValue(dropwizardConfig.get(S3_VAR_INTERPOLATION), S3InterpolationConfig.class);
         } catch (final Exception e) {
             log.error("Encountered exception while parsing s3 config - {}", e.getMessage(), e);
-            throw new S3VarInterpolationException("Unable to parse s3 configuration.");
+            throw new S3VarInterpolationException("Unable to parse s3 configuration.", e);
         }
     }
 
@@ -112,14 +111,14 @@ public class S3VariableResolver {
      * @param key    :: s3 key
      * @return input stream
      */
-    private InputStream download(final String bucket, final String key) {
+    private InputStream download(final String bucket, final String key, final String version) {
         log.info("Fetching object from S3 bucket - {}, key - {}", bucket, key);
         final S3Object s3Object;
         try {
-            s3Object = client.getObject(new GetObjectRequest(bucket, key));
+            s3Object = client.getObject(new GetObjectRequest(bucket, key, version));
         } catch (final Exception e) {
             log.error("S3 Download operation failed. {}", e.getMessage(), e);
-            throw new S3VarInterpolationException("S3 downloadAndSave operation failed.");
+            throw new S3VarInterpolationException("S3 downloadAndSave operation failed.", e);
         }
         log.debug("S3 Downloaded object: {}", s3Object.toString());
         return s3Object.getObjectContent();
@@ -138,7 +137,7 @@ public class S3VariableResolver {
             out = new FileOutputStream(path.toFile());
         } catch (final IOException e) {
             log.error("Encountered exception. ", e);
-            throw new S3VarInterpolationException(e.getMessage());
+            throw new S3VarInterpolationException("Encountered exception.", e);
         } finally {
             if (inputStream != null && out != null) {
                 try {

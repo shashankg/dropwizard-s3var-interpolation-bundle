@@ -10,9 +10,10 @@ import io.dropwizard.setup.Environment;
  */
 public class S3VariableInterpolationBundle implements Bundle {
 
+    private static final Yaml yaml = new Yaml();
+
     @Override
     public void initialize(final Bootstrap<?> bootstrap) {
-        final Yaml yaml = new Yaml();
         bootstrap.setConfigurationSourceProvider(
                 new VariableProvider(
                         bootstrap.getConfigurationSourceProvider(),
@@ -24,6 +25,7 @@ public class S3VariableInterpolationBundle implements Bundle {
 
     @Override
     public void run(final Environment environment) {
+        // nothing to run
     }
 }
 

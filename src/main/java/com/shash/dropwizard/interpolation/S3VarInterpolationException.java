@@ -11,4 +11,12 @@ public class S3VarInterpolationException extends RuntimeException {
     public S3VarInterpolationException(final String errorMessage) {
         super(errorMessage);
     }
+
+    /**
+     * @param errorMessage ::
+     * @param exception    :: exception
+     */
+    public S3VarInterpolationException(final String errorMessage, final Exception exception) {
+        super(errorMessage, exception);
+    }
 }
